@@ -6,9 +6,35 @@
     <title>To Do List</title>
 
     <style>
+
+        :root{
+            --bg-color: #ECFAE5;
+            --text-color: #000;
+            --card-bg: #fff;
+            --card-text-color:#000;
+            --border-color:#ccc;
+            --done-color:gray;
+        }
+
+        body.dark-mode{
+            --bg-color:#121212;
+            --text-color:#ffffff;
+            --card-bg:#1E1E1E;
+            --card-text-color:#ffffff;
+            --border-color:#444;
+            --done-color:#777;
+        }
+
+        /* transition */
+        body, .card{
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        }
+
+
         body{
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #ECFAE5;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             padding: 40px;
             text-align: center;
         }
@@ -56,8 +82,9 @@
         }
 
         .card{
-            background-color: #fff;
-            border:1px solid #ccc;
+            background-color: var(--card-bg);
+            border:1px solid var(--border-color);
+            color: var(--card-text-color);
             border-radius: 10px;
             padding: 20px;
             width: 250px;
@@ -78,7 +105,7 @@
 
         .card.done{
             text-decoration: line-through;
-            color: gray;
+            color: var(--done-color);
         }
 
         .card button.delete-btn{
@@ -92,6 +119,49 @@
             right: 10px;
         }
 
+        #dateTimeDisplay{
+            font-size: 18px;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        /*modal for color theme */
+        .modal{
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content{
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 12px;
+            text-align: left;
+            position: relative;
+        }
+
+        .modal .close{
+            color: #aaa;
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal .close:hover{
+            color: black;
+        }
 
     </style>
 
@@ -99,20 +169,39 @@
 <body>
     
     <header>
+        <div id="dateTimeDisplay"></div>
         <h1>To Do List</h1>
     </header>
 
     <main>
-        <input id="taskInput" type="text" placeholder="Input your Task">
+        <!--Button and Input-->
+        <input id="taskInput" type="text" placeholder="Input your Task" list="taskSuggestions">
+        <datalist id="taskSuggestions"></datalist>
         <input id="taskDate" type="date">
         <select id="taskPriority">
             <option value="Low">Low</option>
             <option value="Medium" selected>Medium</option>
             <option value="High">High</option>
         </select>
-        <button onclick="addTask()">Add</button>
+        <button onclick="addTask()">Add Task</button>
         <button onclick="clearTask()">Clear All</button>
         <button onclick="filterToday()">Show Today's Tasks</button>
+        <button id="themeToggle">Toggle Theme</button>
+        
+        <!-- Modal Pop Up for Color Theme-->
+        <button onclick="openColorModal()">Customize Color Theme</button>
+
+        <div id="colorModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeColorModal()">&times;</span>
+                <h3>Customize Theme Colors</h3>
+                <label>Background: <input type="color" id="bgColorPicker"></label>
+                <label>Text: <input type="color" id="textColorPicker"></label>
+                <label>Card: <input type="color" id="cardColorPicker"></label>
+                <button onclick="saveColors()">Save Colors</button>
+                <button onclick="resetColors()">Reset to Default</button>
+            </div>
+        </div>
         
         <div id="taskCardContainer" class="card-container"></div>
     </main>
@@ -134,6 +223,7 @@
                 tasks.sort((a,b) => new Date(a.date) - new Date(b.date));
                 
                 tasks.forEach(task => renderTask(task.text, task.date, task.priority ,task.done));
+                updateSuggestions();
             }else{
                 fetch('tasks.json')
                     .then(res => res.json())
@@ -145,6 +235,7 @@
 
                         saveTaskToLocalStorage();
                         tasks.forEach(task => renderTask(task.text, task.done, task.priority, task.date,));
+                        updateSuggestions();
                     })
                 .catch(err=> console.error("Error Loading tasks.json"),err);
             }
@@ -183,6 +274,7 @@
             //render task
             document.getElementById("taskCardContainer").innerHTML = "";
             tasks.forEach(task=> renderTask(task.text, task.date, task.priority, task.done));
+            updateSuggestions();
             input.value ="";
             dateInput.value="";
             priorityInput.value = "Medium";
@@ -273,8 +365,158 @@
             }
         }
 
-        window.onload = loadTaskFromLocalStorage();
+        // updateSuggestions
 
+        function updateSuggestions(){
+            const suggestionSet = new Set(tasks.map(task => task.text));
+            const datalist = document.getElementById("taskSuggestions");
+            datalist.innerHTML = "";
+            suggestionSet.forEach(text => {
+                const option = document.createElement("option");
+                option.value= text;
+                datalist.appendChild(option);
+            });
+        }
+
+        // Time and Date
+
+        function updateDateTime(){
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('dateTimeDisplay').textContent = now.toLocaleString('en-US', options);
+        }
+
+        setInterval(updateDateTime, 1000);
+
+
+        // theme switching
+        const themeToggleBtn = document.getElementById("themeToggle");
+
+        function loadTheme(){
+            const savedTheme = localStorage.getItem("theme");
+            if(savedTheme === "dark"){
+                document.body.classList.add("dark-mode");
+                themeToggleBtn.textContent = "Light Mode";
+            }else{
+                themeToggleBtn.textContent = "Dark Mode";
+            }
+        }
+
+        themeToggleBtn.addEventListener('click', () =>{
+            document.body.classList.toggle("dark-mode");
+            const isDark = document.body.classList.contains("dark-mode");
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+            themeToggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
+        });
+
+        function openColorModal(){
+            document.getElementById("colorModal").style.display="block";
+        }
+
+        function closeColorModal(){
+            document.getElementById("colorModal").style.display="none";
+        }
+
+        window.onclick = function(event){
+            const modal = document.getElementById("colorModal");
+            if(event.target === modal){
+                modal.style.display = "none";
+            }
+        }
+
+        // custom color change theme
+        const bgColorPicker = document.getElementById("bgColorPicker");
+        const textColorPicker = document.getElementById("textColorPicker");
+        const cardColorPicker = document.getElementById("cardColorPicker");
+
+        function applyCustomColors(){
+            const bg = localStorage.getItem("customBg");
+            const text = localStorage.getItem("customText");
+            const card = localStorage.getItem("customCard");
+
+            if(bg){
+                document.documentElement.style.setProperty("--bg-color", bg);
+                bgColorPicker.value=bg;
+            }
+
+            if(text){
+                document.documentElement.style.setProperty("--text-color",text);
+                textColorPicker.value=text;
+            }
+
+            if(card){
+                document.documentElement.style.setProperty("--card-bg",card);
+                cardColorPicker.value=card;
+            }
+        }
+
+        bgColorPicker.addEventListener('input', (e) =>{
+            const color = e.target.value;
+            document.documentElement.style.setProperty("--bg-color",color);
+            localStorage.setItem("customBg",color);
+        });
+
+        textColorPicker.addEventListener('input', (e) =>{
+            const color = e.target.value;
+            document.documentElement.style.setProperty("--text-color",color);
+            localStorage.setItem("customText",color);
+        });
+
+        cardColorPicker.addEventListener('input', (e) =>{
+            const color = e.target.value;
+            document.documentElement.style.setProperty("--card-bg", color);
+            localStorage.setItem("customCard", color);
+        });
+
+        // save and reset to default function for color
+
+        function saveColors(){
+            const bg = bgColorPicker.value;
+            const text = textColorPicker.value;
+            const card = cardColorPicker.value;
+
+            localStorage.setItem("customBg",bg);
+            localStorage.setItem("customText",text);
+            localStorage.setItem("customCard", card);
+
+            alert("Theme colors Saved!!!")
+        }
+
+        function resetColors(){
+            const confirmReset = confirm("Are you sure you want to reset to default colors?");
+            if(!confirmReset) return;
+
+            localStorage.removeItem("customBg");
+            localStorage.removeItem("customText");
+            localStorage.removeItem("customCard");
+
+            //Reset CSS Variables
+            document.documentElement.style.setProperty("--bg-color", "#ECFAE5");
+            document.documentElement.style.setProperty("--text-color","#000000");
+            document.documentElement.style.setProperty("--card-bg","#ffffff");
+
+            // Immediately update the color pickers' values
+            bgColorPicker.value = "#ECFAE5";
+            textColorPicker.value = "#000000";
+            cardColorPicker.value = "#ffffff";
+
+            alert("Color reset to default");
+        }
+
+        window.onload = () => {
+            loadTaskFromLocalStorage();
+            updateDateTime();
+            loadTheme();
+            applyCustomColors();
+        };
 
 
     </script>
