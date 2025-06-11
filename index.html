@@ -7,73 +7,128 @@
 
     <style>
 
-        :root{
+        :root {
             --bg-color: #ECFAE5;
             --text-color: #000;
             --card-bg: #fff;
-            --card-text-color:#000;
-            --border-color:#ccc;
-            --done-color:gray;
+            --card-text-color: #000;
+            --border-color: #ccc;
+            --done-color: gray;
+            --accent: #4CAF50;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        body.dark-mode{
-            --bg-color:#121212;
-            --text-color:#ffffff;
-            --card-bg:#1E1E1E;
-            --card-text-color:#ffffff;
-            --border-color:#444;
-            --done-color:#777;
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --card-bg: #1E1E1E;
+            --card-text-color: #ffffff;
+            --border-color: #444;
+            --done-color: #777;
+            --shadow: 0 4px 12px rgba(255,255,255,0.05);
         }
 
-        /* transition */
-        body, .card{
-            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
-        }
-
-
-        body{
-            font-family: Arial, Helvetica, sans-serif;
+        body {
+            font-family: 'Segoe UI', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             padding: 40px;
             text-align: center;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        input{
-            padding: 10px;
-            font-size: 16px;
+        main {
+            margin-left: 25px;
+        }
+
+        .task-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        @media (max-width: 600px) {
+            .input-group, .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        header, main {
+            margin-bottom: 20px;
+        }
+
+        #dateTimeDisplay {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .stats-panel {
+            position: fixed;
+            top: 120px;
+            left: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 25px 20px;
             width: 200px;
+            border-radius: 0 12px 12px 0;
+            box-shadow: var(--shadow);
+            color: var(--card-text-color);
+            text-align: left;
+            font-size: 15px;
         }
 
-        button{
-            padding: 10px 15px;
-            font-size: 16px;
-            margin-left: 5px;
-            cursor: pointer;
+        .stats-panel h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
         }
 
-        select#taskPriority{
+        input, select, button {
             padding: 10px;
             font-size: 16px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            background-color: #fff;
-            color: #333;
-            cursor: pointer;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
             outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: 0.2s ease;
         }
 
-        select#taskPriority{
-            border-color: #4CAF50;
-            box-shadow: 0 0 5px rgba(76,175,80,0.5);
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.3);
         }
 
-        select#taskPriority option{
-            font-size: 16px;
+        button {
+            background-color: #f5f5f5;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .card-container{
+        button:hover {
+            background-color: #e3e3e3;
+        }
+
+        .card-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -81,86 +136,123 @@
             margin-top: 30px;
         }
 
-        .card{
+        .card {
             background-color: var(--card-bg);
-            border:1px solid var(--border-color);
+            border: 1px solid var(--border-color);
             color: var(--card-text-color);
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 20px;
-            width: 250px;
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+            width: 260px;
+            box-shadow: var(--shadow);
             position: relative;
             text-align: left;
         }
 
-        .card .task-text{
+        .card .task-text {
             font-size: 18px;
             font-weight: bold;
+            margin-bottom: 8px;
         }
 
-        .card .task-date{
+        .card .task-date {
             font-size: 14px;
             color: gray;
+            margin-bottom: 5px;
         }
 
-        .card.done{
+        .card .task-priority,
+        .card .task-category {
+            font-size: 14px;
+            color: #444;
+            margin-bottom: 4px;
+        }
+
+        .card.done {
             text-decoration: line-through;
             color: var(--done-color);
         }
 
-        .card button.delete-btn{
+        .card button.delete-btn {
             background-color: #ff4d4d;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 6px 10px;
+            border-radius: 5px;
             cursor: pointer;
             position: absolute;
             top: 10px;
             right: 10px;
         }
 
-        #dateTimeDisplay{
-            font-size: 18px;
-            margin-top: 10px;
-            color: #555;
-        }
-
-        /*modal for color theme */
-        .modal{
-            display: none;
+        .color-panel {
             position: fixed;
-            z-index: 999;
-            left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .modal-content{
-            background-color: #fefefe;
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid #888;
+            right: -320px;
             width: 300px;
-            border-radius: 12px;
-            text-align: left;
-            position: relative;
+            height: 100%;
+            background-color: #fefefe;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            border-left: 1px solid #ccc;
         }
 
-        .modal .close{
-            color: #aaa;
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            font-size: 28px;
+        .color-panel.open {
+            right: 0;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-weight: bold;
-            cursor: pointer;
+            margin-bottom: 20px;
         }
 
-        .modal .close:hover{
-            color: black;
+        .panel-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .panel-body label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-body input[type="color"] {
+            margin-left: 10px;
+            width: 40px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+            background: none;
+        }
+
+        .panel-body button {
+            padding: 8px 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #aaa;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .panel-body button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
         }
 
     </style>
@@ -173,37 +265,64 @@
         <h1>To Do List</h1>
     </header>
 
-    <main>
-        <!--Button and Input-->
-        <input id="taskInput" type="text" placeholder="Input your Task" list="taskSuggestions">
-        <datalist id="taskSuggestions"></datalist>
-        <input id="taskDate" type="date">
-        <select id="taskPriority">
-            <option value="Low">Low</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="High">High</option>
-        </select>
-        <button onclick="addTask()">Add Task</button>
-        <button onclick="clearTask()">Clear All</button>
-        <button onclick="filterToday()">Show Today's Tasks</button>
-        <button id="themeToggle">Toggle Theme</button>
-        
-        <!-- Modal Pop Up for Color Theme-->
-        <button onclick="openColorModal()">Customize Color Theme</button>
+    <aside id="statsPanel" class="stats-panel">
 
-        <div id="colorModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeColorModal()">&times;</span>
-                <h3>Customize Theme Colors</h3>
+        <h2>Task Stats</h2>
+        <p>Total Tasks: <span id="totalTasks">0</span></p>
+        <p>Completed: <span id="completedTasks">0</span></p>
+        <p>Pending: <span id="pendingTasks">0</span></p>
+        <p>Today: <span id="todayTasks">0</span></p>
+
+    </aside>
+
+    <main>
+        <!-- Task Input Section -->
+        <section class="task-form">
+            <div class="input-group">
+                <input id="taskInput" type="text" placeholder="Input your Task" list="taskSuggestions">
+                <datalist id="taskSuggestions"></datalist>
+
+                <input id="taskDate" type="date">
+
+                <select id="taskCategory">
+                    <option value="General">General</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="School">School</option>
+                </select>
+
+                <select id="taskPriority">
+                    <option value="Low">Low</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button onclick="addTask()">Add Task</button>
+                <button onclick="clearTask()">Clear All</button>
+                <button onclick="filterToday()">Show Today's Tasks</button>
+                <button id="themeToggle">Toggle Theme</button>
+                <button onclick="toggleColorPanel()">Customize Colors</button>
+            </div>
+        </section>
+
+        <!-- Task Cards Display -->
+        <section id="taskCardContainer" class="card-container"></section>
+
+        <!-- Color Panel -->
+        <div id="colorPanel" class="color-panel">
+            <div class="panel-header">
+                <span>Customize Theme</span>
+                <button onclick="toggleColorPanel()" class="close-btn">X</button>
+            </div>
+            <div class="panel-body">
                 <label>Background: <input type="color" id="bgColorPicker"></label>
                 <label>Text: <input type="color" id="textColorPicker"></label>
                 <label>Card: <input type="color" id="cardColorPicker"></label>
-                <button onclick="saveColors()">Save Colors</button>
                 <button onclick="resetColors()">Reset to Default</button>
             </div>
         </div>
-        
-        <div id="taskCardContainer" class="card-container"></div>
     </main>
 
     <script>
@@ -222,8 +341,9 @@
                 // sort task by date 
                 tasks.sort((a,b) => new Date(a.date) - new Date(b.date));
                 
-                tasks.forEach(task => renderTask(task.text, task.date, task.priority ,task.done));
+                tasks.forEach(task => renderTask(task.text, task.date, task.priority, task.category ,task.done));
                 updateSuggestions();
+                updateStats();
             }else{
                 fetch('tasks.json')
                     .then(res => res.json())
@@ -234,8 +354,9 @@
                         tasks.sort((a,b) => new Date(a.date) - new Date(b.date));
 
                         saveTaskToLocalStorage();
-                        tasks.forEach(task => renderTask(task.text, task.done, task.priority, task.date,));
+                        tasks.forEach(task => renderTask(task.text, task.done, task.priority, task.category, task.date));
                         updateSuggestions();
+                        updateStats();
                     })
                 .catch(err=> console.error("Error Loading tasks.json"),err);
             }
@@ -246,10 +367,12 @@
             const input = document.getElementById("taskInput");
             const dateInput = document.getElementById("taskDate");
             const priorityInput = document.getElementById("taskPriority");
+            const categoryInput = document.getElementById("taskCategory");
             
             const taskText = input.value.trim(); 
             const taskDate = dateInput.value;
             const taskPriority = priorityInput.value;
+            const taskCategory = categoryInput.value || "Uncategorized";
 
             if(taskText === "") return;
             // check if the input is duplicate
@@ -263,7 +386,7 @@
                 return;
             }
 
-            const task = {text: taskText, date:taskDate ,priority:taskPriority ,done: false};
+            const task = {text: taskText, date:taskDate ,priority:taskPriority ,category:taskCategory ,done: false};
             tasks.push(task);
 
             // sort task after adding a new one
@@ -273,14 +396,15 @@
 
             //render task
             document.getElementById("taskCardContainer").innerHTML = "";
-            tasks.forEach(task=> renderTask(task.text, task.date, task.priority, task.done));
+            tasks.forEach(task=> renderTask(task.text, task.date, task.priority, task.category, task.done));
             updateSuggestions();
+            updateStats();
             input.value ="";
             dateInput.value="";
             priorityInput.value = "Medium";
         }
 
-        function renderTask(taskText, taskDate, priority = "Medium" ,isDone = false){
+        function renderTask(taskText, taskDate, priority = "Medium", category = "General" ,isDone = false){
             const container = document.getElementById("taskCardContainer");
 
             const card = document.createElement("div");
@@ -307,6 +431,10 @@
             priorityElem.className = "task-priority";
             priorityElem.textContent = `Priority: ${priority}`;
 
+            const categoryElem = document.createElement("div");
+            categoryElem.className = "task-category";
+            categoryElem.textContent = `category: ${category}`;
+
             card.onclick = () => {
                 card.classList.toggle("done");
                 tasks.forEach(task => {
@@ -315,6 +443,7 @@
                     } 
                 });
                 saveTaskToLocalStorage();
+                updateStats();
             };
 
             const deleteBtn = document.createElement("button");
@@ -325,11 +454,13 @@
                 container.removeChild(card);
                 tasks = tasks.filter(tasks => !(tasks.text === taskText && tasks.date === taskDate));
                 saveTaskToLocalStorage();
+                updateStats();
             }
 
             card.appendChild(textElem);
             card.appendChild(dateElem);
             card.appendChild(priorityElem);
+            card.appendChild(categoryElem);
             card.appendChild(deleteBtn);
             container.appendChild(card);
 
@@ -342,6 +473,7 @@
             localStorage.removeItem("tasks");
             tasks =[];
             document.getElementById("taskCardContainer").innerHTML = "";
+            updateStats();
         }
 
         // filter today task
@@ -355,14 +487,23 @@
 
             if(!showingTodayOnly){
                 const todayTask = tasks.filter(task => task.date === today);
-                todayTask.forEach(task => renderTask(task.text, task.date, task.done));
+                todayTask.forEach(task => renderTask(task.text, task.date, task.priority, task.category, task.done));
                 filterBtn.textContent = "Show All Task";
                 showingTodayOnly = true;
-            }else {
-                tasks.forEach(task => renderTask(task.text, task.date, task.done));
+            }else { 
+                tasks.forEach(task => renderTask(task.text, task.date, task.priority, task.category,task.done));
                 filterBtn.textContent = "Show Today's Tasks";
                 showingTodayOnly = false;
             }
+        }
+
+        // filterCategory
+
+        function filterCategory(category){
+            document.getElementById("taskCardContainer").innerHTML ="";
+
+            const filteredTask = category === "ALL" ? task: task.filter(task => task.category === category);
+            filteredTask.forEach(task => renderTask(task.text,task.date,task.priority,task.category,task.done));
         }
 
         // updateSuggestions
@@ -417,19 +558,9 @@
             themeToggleBtn.textContent = isDark ? "Light Mode" : "Dark Mode";
         });
 
-        function openColorModal(){
-            document.getElementById("colorModal").style.display="block";
-        }
-
-        function closeColorModal(){
-            document.getElementById("colorModal").style.display="none";
-        }
-
-        window.onclick = function(event){
-            const modal = document.getElementById("colorModal");
-            if(event.target === modal){
-                modal.style.display = "none";
-            }
+        function toggleColorPanel(){
+            const panel = document.getElementById("colorPanel");
+            panel.classList.toggle("open");
         }
 
         // custom color change theme
@@ -478,18 +609,6 @@
 
         // save and reset to default function for color
 
-        function saveColors(){
-            const bg = bgColorPicker.value;
-            const text = textColorPicker.value;
-            const card = cardColorPicker.value;
-
-            localStorage.setItem("customBg",bg);
-            localStorage.setItem("customText",text);
-            localStorage.setItem("customCard", card);
-
-            alert("Theme colors Saved!!!")
-        }
-
         function resetColors(){
             const confirmReset = confirm("Are you sure you want to reset to default colors?");
             if(!confirmReset) return;
@@ -511,11 +630,27 @@
             alert("Color reset to default");
         }
 
+        // task updates
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(task => task.done).length;
+            const pending = total - completed;
+            const today = new Date().toISOString().split("T")[0];
+            const todayTasks = tasks.filter(task => task.date === today).length;
+
+            document.getElementById("totalTasks").textContent = total;
+            document.getElementById("completedTasks").textContent = completed;
+            document.getElementById("pendingTasks").textContent = pending;
+            document.getElementById("todayTasks").textContent = todayTasks;
+        }
+
         window.onload = () => {
             loadTaskFromLocalStorage();
             updateDateTime();
             loadTheme();
             applyCustomColors();
+            updateStats();
         };
 
 
